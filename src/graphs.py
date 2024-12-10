@@ -19,8 +19,27 @@ simple_graph.add_edges_from(
 )
 
 
-# Binary tree with integer nodes
-binary_tree = nx.balanced_tree(2, 3)
+# Create a sequential binary search tree of 15 nodes
+binary_search_tree = nx.Graph()
+binary_search_tree.add_edges_from(
+    [
+        (8, 4),
+        (8, 12),
+        (4, 2),
+        (4, 6),
+        (12, 10),
+        (12, 14),
+        (2, 1),
+        (2, 3),
+        (6, 5),
+        (6, 7),
+        (10, 9),
+        (10, 11),
+        (14, 13),
+        (14, 15),
+    ]
+)
+
 
 # Graph with weighted edges (for Dijkstra's algorithm), duplicate simple_graph
 # with random edge weights

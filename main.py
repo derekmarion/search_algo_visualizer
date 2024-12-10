@@ -1,5 +1,5 @@
 from src import GraphSearchAlgorithms
-from src import simple_graph, weighted_graph, binary_tree
+from src import simple_graph, weighted_graph, binary_search_tree
 
 
 def main():
@@ -10,10 +10,10 @@ def main():
     search.visualize_graph_and_search("dijkstra", start_node="A", goal_node="F")
 
     # Depth-First Search (DFS) with pre-order, in-order, and post-order
-    search = GraphSearchAlgorithms(binary_tree)
-    search.visualize_graph_and_search("dfs", start_node=0, order="pre")
-    search.visualize_graph_and_search("dfs", start_node=0, order="in")
-    search.visualize_graph_and_search("dfs", start_node=0, order="post")
+    search = GraphSearchAlgorithms(binary_search_tree)
+    search.visualize_graph_and_search("dfs", start_node=8, order="pre")
+    search.visualize_graph_and_search("dfs", start_node=8, order="in")
+    search.visualize_graph_and_search("dfs", start_node=8, order="post")
 
     # Breadth-First Search (BFS)
     search = GraphSearchAlgorithms(simple_graph)

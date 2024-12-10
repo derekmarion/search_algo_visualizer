@@ -102,21 +102,19 @@ class GraphSearchAlgorithms:
                 # In-order: Left, Root, Right
                 # Sort neighbors to ensure consistent left-right traversal
                 unvisited_neighbors.sort()
-                
-                if unvisited_neighbors:
-                    # Left subtree first
-                    left_child = unvisited_neighbors[0]
-                    if left_child: 
-                        dfs_recursive(left_child)
+
+                # Left subtree first
+                left_subtree = [n for n in unvisited_neighbors if n < node]
+                for neighbor in left_subtree:
+                    dfs_recursive(neighbor)
 
                 # Current node
                 self.visited_order.append(node)
 
-                if unvisited_neighbors:
-                    # Right subtree
-                    right_child = unvisited_neighbors[1]
-                    if right_child:
-                        dfs_recursive(right_child)
+                # Right subtree
+                right_subtree = [n for n in unvisited_neighbors if n > node]
+                for neighbor in right_subtree:
+                    dfs_recursive(neighbor)
 
             elif order == "post":
                 # Post-order: Left, Right, Root
@@ -171,7 +169,7 @@ class GraphSearchAlgorithms:
                         distances[neighbor] = new_distance
 
         return self.visited_order
-
+    # TODO: update method to take the root node as an argument
     def create_pyramidal_layout(self) -> Dict:
         """
         Create a pyramidal layout for a balanced binary tree
@@ -182,7 +180,7 @@ class GraphSearchAlgorithms:
         def get_tree_height(graph):
             """Calculate the height of the tree"""
             return max(
-                len(nx.shortest_path(graph, 0, leaf))
+                len(nx.shortest_path(graph, 8, leaf))
                 for leaf in graph.nodes
                 if graph.degree(leaf) == 1
             )
@@ -192,11 +190,11 @@ class GraphSearchAlgorithms:
 
         # Process nodes level by level
         for level in range(height + 1):
-            # Find nodes at this level
+            # Find nodes at this level (distance from root)
             level_nodes = [
                 node
                 for node in self.graph.nodes()
-                if len(nx.shortest_path(self.graph, 0, node)) - 1 == level
+                if len(nx.shortest_path(self.graph, 8, node)) - 1 == level
             ]
 
             # Calculate width of this level
