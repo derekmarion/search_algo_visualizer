@@ -1,6 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 class GraphSearchAlgorithms:
@@ -144,6 +144,44 @@ class GraphSearchAlgorithms:
 
         return self.visited_order
 
+    def create_pyramidal_layout(self) -> Dict:
+        """
+        Create a pyramidal layout for a balanced binary tree
+
+        :return: Dictionary of node positions
+        """
+
+        def get_tree_height(graph):
+            """Calculate the height of the tree"""
+            return max(
+                len(nx.shortest_path(graph, 0, leaf))
+                for leaf in graph.nodes
+                if graph.degree(leaf) == 1
+            )
+
+        height = get_tree_height(self.graph)
+        pos = {}
+
+        # Process nodes level by level
+        for level in range(height + 1):
+            # Find nodes at this level
+            level_nodes = [
+                node
+                for node in self.graph.nodes()
+                if len(nx.shortest_path(self.graph, 0, node)) - 1 == level
+            ]
+
+            # Calculate width of this level
+            level_width = len(level_nodes)
+
+            # Position nodes horizontally
+            for i, node in enumerate(sorted(level_nodes)):
+                x = (i - (level_width - 1) / 2) / (level_width / 2)
+                y = 1 - (level / height)
+                pos[node] = (x, y)
+
+        return pos
+
     def visualize_graph_and_search(
         self,
         search_type: str,
@@ -167,9 +205,26 @@ class GraphSearchAlgorithms:
         else:
             self.depth_first_search(start_node, goal_node, order)
 
-        # Visualization
+        # If input graph has integer nodes, convert
+        # visited order to strings to enable visualization
+        if all(isinstance(node, int) for node in self.graph.nodes):
+            self.visited_order = [str(node) for node in self.visited_order]
+
+        # Print visited order for debugging
+        print("Visited Order:", " → ".join(self.visited_order))
+
+        # Set plot size
         plt.figure(figsize=(14, 9))
-        pos = nx.spring_layout(self.graph, seed=42)
+        pos = None
+
+        # Conditional layout based on graph type
+        if search_type == "bfs" or search_type == "dijkstra":
+            pos = nx.spring_layout(self.graph, seed=13)
+            # Add edge weights to graph if available
+            edge_labels = nx.get_edge_attributes(self.graph, "weight")
+            nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
+        elif search_type == "dfs":
+            pos = self.create_pyramidal_layout()
 
         # Draw the graph
         nx.draw(
@@ -182,11 +237,7 @@ class GraphSearchAlgorithms:
             font_weight="bold",
         )
 
-        # Add edge weights to graph if available
-        edge_labels = nx.get_edge_attributes(self.graph, "weight")
-        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
-
-        # Create detailed annotation
+        # Create detailed annotation for
         annotation_text = (
             f"Search Details:\n"
             f"Algorithm: {self.search_details['type']}\n"
@@ -198,7 +249,7 @@ class GraphSearchAlgorithms:
         # Add annotation to the plot
         plt.annotate(
             annotation_text,
-            xy=(0.05, 0.30),  # Position of the annotation
+            xy=(0.05, 0.90),  # Position of the annotation
             xycoords="axes fraction",
             fontsize=9,
             bbox=dict(boxstyle="round,pad=0.5", fc="yellow", alpha=0.5),
