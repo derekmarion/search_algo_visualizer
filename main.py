@@ -1,5 +1,5 @@
 from src import GraphSearchAlgorithms
-from src import simple_graph, weighted_graph, binary_search_tree
+from src import simple_graph, weighted_graph, binary_search_tree, weighted_graph_with_heuristics
 
 
 def main():
@@ -18,6 +18,10 @@ def main():
     # Breadth-First Search (BFS)
     search = GraphSearchAlgorithms(simple_graph)
     search.visualize_graph_and_search("bfs", start_node="A", goal_node="L")
+
+    # A* algorithm with target node
+    search = GraphSearchAlgorithms(weighted_graph_with_heuristics)
+    search.visualize_graph_and_search("astar", start_node="A", goal_node="F")
 
 
 if __name__ == "__main__":

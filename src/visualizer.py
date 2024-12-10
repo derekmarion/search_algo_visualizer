@@ -169,6 +169,50 @@ class GraphSearchAlgorithms:
                         distances[neighbor] = new_distance
 
         return self.visited_order
+
+    def a_star(self, start_node: str, goal_node: Optional[str] = None) -> List[str]:
+        """Perform A* Algorithm
+
+        :param start_node: Node to start the search from
+        :param goal_node: Optional goal node to terminate search
+        :return: List of nodes in order of visit
+        """
+        # Reset visited order and search details
+        self.visited_order = []
+        self.search_details = {
+            "type": "A* Algorithm",
+            "start_node": start_node,
+            "goal_node": goal_node if goal_node else "Not specified",
+        }
+
+        # Initialize distances and visited set
+        distances = {node: float("inf") for node in self.graph.nodes}
+        distances[start_node] = 0
+        visited = set()
+
+        while len(visited) < len(self.graph.nodes):
+            # Set current node to unvisited node with smallest distance
+            # plus heuristic
+            current_node = min(
+                (node for node in self.graph.nodes if node not in visited),
+                key=lambda node: distances[node] + self.graph.nodes[node]["heuristic"],
+            )
+            visited.add(current_node)
+            self.visited_order.append(current_node)
+
+            # End search if goal node is reached
+            if current_node == goal_node:
+                break
+
+            # Check neighbors of current node for shorter paths and update distances
+            for neighbor, weight in self.graph[current_node].items():
+                if neighbor not in visited:
+                    new_distance = distances[current_node] + weight["weight"]
+                    if new_distance < distances[neighbor]:
+                        distances[neighbor] = new_distance
+
+        return self.visited_order
+
     # TODO: update method to take the root node as an argument
     def create_pyramidal_layout(self) -> Dict:
         """
@@ -228,7 +272,9 @@ class GraphSearchAlgorithms:
             self.breadth_first_search(start_node, goal_node)
         elif search_type == "dijkstra":
             self.dijkstra(start_node, goal_node)
-        else:
+        elif search_type == "astar":
+            self.a_star(start_node, goal_node)
+        elif search_type == "dfs":
             self.depth_first_search(start_node, goal_node, order)
 
         # If input graph has integer nodes, convert
@@ -244,10 +290,19 @@ class GraphSearchAlgorithms:
         pos = None
 
         # Conditional layout based on graph type
-        if search_type == "bfs" or search_type == "dijkstra":
+        if search_type == "dijkstra":
+            # Add edge weights for Dijkstra's algorithm
             pos = nx.spring_layout(self.graph, seed=13)
-            # Add edge weights to graph if available
             edge_labels = nx.get_edge_attributes(self.graph, "weight")
+            nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
+        elif search_type == "bfs":
+            pos = nx.spring_layout(self.graph, seed=13)
+        elif search_type == "astar":
+            # Add edge weights and heuristics for A* algorithm
+            pos = nx.spring_layout(self.graph, seed=13)
+            edge_labels = nx.get_edge_attributes(self.graph, "weight")
+            node_labels = nx.get_node_attributes(self.graph, "heuristic")
+            nx.draw_networkx_labels(self.graph, pos, labels=node_labels)
             nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
         elif search_type == "dfs":
             pos = self.create_pyramidal_layout()
