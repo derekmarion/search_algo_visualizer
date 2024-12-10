@@ -101,6 +101,49 @@ class GraphSearchAlgorithms:
         dfs_recursive(start_node)
         return self.visited_order
 
+    def dijkstra(self, start_node: str, goal_node: Optional[str] = None) -> List[str]:
+        """
+        Perform Dijkstra's algorithm
+
+        :param start_node: Node to start the search from
+        :param goal_node: Optional goal node to terminate search
+        :return: List of nodes in order of visit
+        """
+        # Reset visited order and search details
+        self.visited_order = []
+        self.search_details = {
+            "type": "Dijkstra's Algorithm",
+            "start_node": start_node,
+            "goal_node": goal_node if goal_node else "Not specified",
+        }
+
+        # Initialize distances and visited set
+        distances = {node: float("inf") for node in self.graph.nodes}
+        distances[start_node] = 0
+        visited = set()
+
+        while len(visited) < len(self.graph.nodes):
+            # Set current node to unvisited node with smallest distance
+            current_node = min(
+                (node for node in self.graph.nodes if node not in visited),
+                key=lambda node: distances[node],
+            )
+            visited.add(current_node)
+            self.visited_order.append(current_node)
+
+            # End search if goal node is reached
+            if current_node == goal_node:
+                break
+
+            # Check neighbors of current node for shorter paths and update distances
+            for neighbor, weight in self.graph[current_node].items():
+                if neighbor not in visited:
+                    new_distance = distances[current_node] + weight["weight"]
+                    if new_distance < distances[neighbor]:
+                        distances[neighbor] = new_distance
+
+        return self.visited_order
+
     def visualize_graph_and_search(
         self,
         search_type: str,
@@ -111,7 +154,7 @@ class GraphSearchAlgorithms:
         """
         Visualize the graph and search results
 
-        :param search_type: 'bfs' or 'dfs'
+        :param search_type: 'bfs', 'dfs' or 'dijkstra'
         :param start_node: Node to start the search from
         :param goal_node: Optional goal node
         :param order: DFS order ('pre', 'post', 'in')
@@ -119,6 +162,8 @@ class GraphSearchAlgorithms:
         # Perform the search
         if search_type == "bfs":
             self.breadth_first_search(start_node, goal_node)
+        elif search_type == "dijkstra":
+            self.dijkstra(start_node, goal_node)
         else:
             self.depth_first_search(start_node, goal_node, order)
 
@@ -137,6 +182,10 @@ class GraphSearchAlgorithms:
             font_weight="bold",
         )
 
+        # Add edge weights to graph if available
+        edge_labels = nx.get_edge_attributes(self.graph, "weight")
+        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
+
         # Create detailed annotation
         annotation_text = (
             f"Search Details:\n"
@@ -149,7 +198,7 @@ class GraphSearchAlgorithms:
         # Add annotation to the plot
         plt.annotate(
             annotation_text,
-            xy=(0.05, 0.95),  # Position of the annotation
+            xy=(0.05, 0.30),  # Position of the annotation
             xycoords="axes fraction",
             fontsize=9,
             bbox=dict(boxstyle="round,pad=0.5", fc="yellow", alpha=0.5),
