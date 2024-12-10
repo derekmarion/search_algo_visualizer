@@ -53,7 +53,7 @@ class GraphSearchAlgorithms:
         return self.visited_order
 
     def depth_first_search(
-        self, start_node: str, goal_node: Optional[str] = None, order: str = "pre"
+        self, start_node: int, goal_node: Optional[str] = None, order: str = "pre"
     ) -> List[str]:
         """
         Perform Depth-First Search
@@ -74,28 +74,56 @@ class GraphSearchAlgorithms:
         visited = set()
 
         def dfs_recursive(node):
-            # Pre-order visit
+            # Prevent revisiting
+            if node in visited:
+                return
+
+            # Mark as visited immediately to prevent recursion loops
+            visited.add(node)
+
+            # Goal check
+            if node == goal_node:
+                self.visited_order.append(node)
+                return
+
+            # Get unvisited neighbors
+            unvisited_neighbors = [
+                n for n in self.graph.neighbors(node) if n not in visited
+            ]
+
             if order == "pre":
-                if node not in visited:
-                    self.visited_order.append(node)
-                    visited.add(node)
+                # Pre-order: Root, Left, Right
+                self.visited_order.append(node)
 
-            # Explore neighbors
-            for neighbor in self.graph.neighbors(node):
-                if neighbor not in visited:
-                    # In-order visit (only for binary trees)
-                    if order == "in" and len(list(self.graph.neighbors(node))) > 0:
-                        mid_neighbor = list(self.graph.neighbors(node))[0]
-                        if mid_neighbor not in visited:
-                            dfs_recursive(mid_neighbor)
-                            self.visited_order.append(node)
-
+                for neighbor in unvisited_neighbors:
                     dfs_recursive(neighbor)
 
-            # Post-order visit
-            if order == "post" and node not in visited:
+            elif order == "in":
+                # In-order: Left, Root, Right
+                # Sort neighbors to ensure consistent left-right traversal
+                unvisited_neighbors.sort()
+                
+                if unvisited_neighbors:
+                    # Left subtree first
+                    left_child = unvisited_neighbors[0]
+                    if left_child: 
+                        dfs_recursive(left_child)
+
+                # Current node
                 self.visited_order.append(node)
-                visited.add(node)
+
+                if unvisited_neighbors:
+                    # Right subtree
+                    right_child = unvisited_neighbors[1]
+                    if right_child:
+                        dfs_recursive(right_child)
+
+            elif order == "post":
+                # Post-order: Left, Right, Root
+                for neighbor in unvisited_neighbors:
+                    dfs_recursive(neighbor)
+
+                self.visited_order.append(node)
 
         # Start the recursive DFS
         dfs_recursive(start_node)

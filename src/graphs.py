@@ -18,8 +18,9 @@ simple_graph.add_edges_from(
     ]
 )
 
+
 # Binary tree with integer nodes
-binary_tree = nx.balanced_tree(r=2, h=3)
+binary_tree = nx.balanced_tree(2, 3)
 
 # Graph with weighted edges (for Dijkstra's algorithm), duplicate simple_graph
 # with random edge weights
