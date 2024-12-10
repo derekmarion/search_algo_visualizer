@@ -1,4 +1,4 @@
 from .visualizer import GraphSearchAlgorithms
-from .graphs import simple_graph
+from .graphs import simple_graph, weighted_graph, binary_tree
 
-__all__ = ["GraphSearchAlgorithms", "simple_graph"]
+__all__ = ["GraphSearchAlgorithms", "simple_graph", "weighted_graph", "binary_tree"]
