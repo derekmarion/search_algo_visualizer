@@ -302,7 +302,18 @@ class GraphSearchAlgorithms:
             pos = nx.spring_layout(self.graph, seed=13)
             edge_labels = nx.get_edge_attributes(self.graph, "weight")
             node_labels = nx.get_node_attributes(self.graph, "heuristic")
-            nx.draw_networkx_labels(self.graph, pos, labels=node_labels)
+            node_labels = {
+                node: round(heuristic, 2) for node, heuristic in node_labels.items()
+            }
+            nx.draw_networkx_labels(
+                self.graph,
+                pos,
+                labels=node_labels,
+                verticalalignment="bottom",
+                horizontalalignment="right",
+                bbox=dict(boxstyle="round,pad=0.5", fc="yellow", alpha=0.5),
+                font_size="8",
+            )
             nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=edge_labels)
         elif search_type == "dfs":
             pos = self.create_pyramidal_layout()
